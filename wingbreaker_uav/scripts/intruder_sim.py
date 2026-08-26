@@ -12,6 +12,7 @@ Uses the `gz service` CLI, so it works against a running gz sim server.
 """
 
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -36,8 +37,33 @@ def wait_for_world(world, timeout_s=120):
     return False
 
 
+def find_model_sdf():
+    """Locate intruder_x500/model.sdf - works from source tree and install."""
+    candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     '..', '..', 'sim', 'models', 'intruder_x500',
+                     'model.sdf'),
+        # installed layout lives under <prefix>/share/wingbreaker_uav/scripts
+        os.path.expanduser(
+            '~/UAV_Project/sim/models/intruder_x500/model.sdf'),
+    ]
+    for c in candidates:
+        c = os.path.abspath(c)
+        if os.path.isfile(c):
+            return c
+    print('model.sdf not found, tried:\n  ' + '\n  '.join(candidates),
+          file=sys.stderr)
+    return None
+
+
 def spawn(world, name, x, y, z):
-    req = (f'name: "{name}", file: "intruder_drone", '
+    # this gz build (gz-msgs10) has no `file` field - use sdf_filename with
+    # an absolute path so resolution never depends on GZ_SIM_RESOURCE_PATH
+    model_sdf = find_model_sdf()
+    if model_sdf is None:
+        return False
+    req = (f'name: "{name}", '
+           f'sdf_filename: "{model_sdf}", '
            f'pose: {{position: {{x: {x}, y: {y}, z: {z}}}}}')
     r = gz_service(world, f'/world/{world}/create',
                    'gz.msgs.EntityFactory', 'gz.msgs.Boolean', req)

@@ -57,6 +57,28 @@ Dashboard: **http://localhost:8080** - mission state, telemetry, camera feed,
 detections, intercept reports, Approve button (human mode), QGC tab (when
 novnc_bridge is running).
 
+## Node graph (what `rqt_graph` should look like)
+
+```
+                 /detections          /safe_to_fly  /battery_level
+   [detector] ────────────────▶ [brain] ◀────────────────────── [safety_node]
+       ▲                           │  │
+       │                           │  └── /fly_to_gps (action) ──▶ [flight_node]── MAVSDK ──▶ PX4 SITL :14540
+       │ /vehicle_status           │                                     │
+       │  (from flight_node)       ├── /fire (srv) ──▶ [engagement_node] │
+       │                           │                                     │
+       └───────────────────── [web_dashboard] ◀── /mission_state ─────┘│
+              ▲                    ▲      /intercept_reports            │
+              │                    └── /request_interception (srv) ◀────┘
+     /camera/image_raw                (Approve button / intercept_llm / CLI)
+       (gz bridge ◀─ gimbal camera)
+```
+
+Tips for a readable `ros2 run rqt_graph`: hide parameter services (Nodes ▸
+Hide: Services), group by node, and you should see exactly the edges above -
+one publisher per arrow source, no orphans (engagement_node shows as an
+isolated circle because it only exposes services).
+
 ## Detection model
 
 `detector` reads `model_path` from `config/uav.yaml`. It ships with the stock

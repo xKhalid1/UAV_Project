@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name='intruder_x500'>
+    <!-- static: moved kinematically via /world/.../set_pose by intruder_sim.py.
+         Scaled-up copy of PX4 x500 for easier camera detection. -->
+    <static>true</static>
+    <include merge='true'>
+      <uri>model://intruder_x500_base</uri>
+    </include>
+  </model>
+</sdf>

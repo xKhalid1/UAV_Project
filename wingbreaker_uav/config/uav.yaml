@@ -29,7 +29,7 @@ brain:
       - 8.54560
     patrol_alt: 65.0
     detection_conf_threshold: 0.85
-    orbit_radius_m: 40.0
+    orbit_radius_m: 80.0        # keep >= flight_node arrival radius
     orbit_points: 8
     decision_timeout_s: 30.0
     cooldown_s: 10.0
@@ -39,6 +39,7 @@ flight_node:
   ros__parameters:
     system_address: "udpin://0.0.0.0:14540"
     status_rate_hz: 2.0
+    arrival_radius_m: 100.0     # FW L1 loiter cannot converge tighter
 
 safety_node:
   ros__parameters:

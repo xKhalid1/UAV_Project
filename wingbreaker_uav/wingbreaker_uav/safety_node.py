@@ -25,7 +25,8 @@ class SafetyNode(Node):
         self.safe_pub = self.create_publisher(Bool, 'safe_to_fly', 10)
 
         self.last_safe = None
-        self.gw = DroneGateway(system_address=address, name='safety')
+        self.gw = DroneGateway(system_address=address, name='safety',
+                               grpc_port=50052)
         self.gw.start()
 
         self.timer = self.create_timer(1.0, self.publish_status)

@@ -150,6 +150,9 @@ class Brain(Node):
         if not self.safe_to_fly:
             self.get_logger().warn('Intruder seen but battery LOW - not chasing')
             return
+        st = self.vehicle_status
+        if not (st and st.connected and st.airborne):
+            return      # still taking off - next detection will re-trigger
         if msg.confidence < self.conf_threshold:
             return
         self.target = {'lat': msg.latitude, 'lon': msg.longitude,
