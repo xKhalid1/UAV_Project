@@ -3,10 +3,6 @@
 Autonomous fixed-wing UAV that patrols an area, detects intruder drones with a
 YOLO camera model, chases and locks onto them, and executes interception after
 an approval step (human or LLM). Built on ROS 2 Humble + PX4 SITL + Gazebo.
-
-Copy of `wing_braker_uav`, reworked following the engineering patterns of
-`pothole_remasterd` (launch orchestration, config, dashboard).
-
 ---
 
 ## Architecture
