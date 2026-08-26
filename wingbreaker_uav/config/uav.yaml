@@ -5,10 +5,10 @@
 detector:
   ros__parameters:
     camera_topic: "/camera/image_raw"
-    model_path: "yolov8n.pt"      # PLACEHOLDER - drop your trained drone .pt here
+    model_path: "yolo26n_DroneDetection.pt"  # trained weights at repo root
     confidence_threshold: 0.35
-    target_classes: [""]          # empty = all classes; use ["drone"] for your model
-    use_simulated: true           # flip to false once your trained model is in place
+    target_classes: ["drone"]     # yolo26n_DroneDetection.pt class names
+    use_simulated: false          # live YOLO inference on /camera/image_raw
     sim_interval_s: 20.0
     sim_base_lat: 47.39770
     sim_base_lon: 8.54560

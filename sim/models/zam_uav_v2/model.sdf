@@ -678,8 +678,13 @@
 
     
     <include merge='true'>
+      <!-- The gimbal model's camera faces -X internally (sensor yaw pi), so
+           like x500_gimbal the mount must be yawed pi to look FORWARD.
+           Optical center lands ~(mount +0.11 x, mount -0.49 z): pose chosen
+           so it sits ahead of/below the puller prop disc (x=0.3, z±~0.15),
+           clear of gear skid (x<=0.275, z~-0.20) and nose wheel. -->
       <uri>model://gimbal</uri>
-      <pose>0.33 0 0.06 0 0 0</pose>
+      <pose>0.25 0 0.10 0 0 3.14159</pose>
     </include>
     <joint name="GimbalAttachJoint" type="fixed">
       <parent>base_link</parent>

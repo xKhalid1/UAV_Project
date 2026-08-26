@@ -21,8 +21,10 @@ from launch_ros.substitutions import FindPackageShare
 PX4_DIR = os.path.expanduser('~/PX4-Autopilot')
 UAV_DIR = os.path.expanduser('~/UAV_Project')
 WORLD = 'default'
+# PX4 names spawned vehicles "<model>_<px4_instance>" (px4-rc.gzsim), so the
+# first vehicle is zam_uav_v2_0 - NOT plain zam_uav_v2.
 CAMERA_GZ_TOPIC = (
-    f'/world/{WORLD}/model/zam_uav_v2/link/camera_link/sensor/camera/image')
+    f'/world/{WORLD}/model/zam_uav_v2_0/link/camera_link/sensor/camera/image')
 
 
 def generate_launch_description():
@@ -68,7 +70,7 @@ def generate_launch_description():
     gate = Node(
         package='wingbreaker_uav', executable='wait_for_topic',
         name='wait_for_camera',
-        arguments=['/camera/image_raw', '180'],
+        arguments=['/camera/image_raw', '180', 'sensor_msgs/msg/Image'],
         output='screen')
 
     flight = Node(package='wingbreaker_uav', executable='flight_node',

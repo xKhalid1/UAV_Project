@@ -149,7 +149,9 @@ class Detector(Node):
                 'Detection seen but no vehicle_status yet - skipping')
             return
         lat, lon = est
-        self._publish(lat, lon, float(msg.header.stamp.sec), conf, cls_name)
+        st = self.vehicle_status
+        alt = float(st.relative_altitude_m) if st is not None else 0.0
+        self._publish(lat, lon, alt, conf, cls_name)
 
     # ---------- simulated path ----------
     def _scan_sim(self):
@@ -176,11 +178,27 @@ class Detector(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    import rclpy
+    from rclpy import init, shutdown, spin
+
+    init()
     node = Detector()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        spin(node)
+    except KeyboardInterrupt:
+        pass
+    except rclpy.executors.ExternalShutdownException:
+        pass
+    finally:
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        if rclpy.ok():
+            try:
+                shutdown()
+            except Exception:
+                pass
 
 
 if __name__ == '__main__':
