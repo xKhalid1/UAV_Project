@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="intruder_drone">
+    <!-- static: moved kinematically via /world/.../set_pose, no physics -->
+    <static>true</static>
+    <link name="body">
+      <inertial>
+        <mass>1.0</mass>
+        <inertia><ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz></inertia>
+      </inertial>
+      <visual name="body_vis">
+        <geometry><box><size>0.5 0.5 0.15</size></box></geometry>
+        <material>
+          <ambient>0.9 0.1 0.1 1</ambient>
+          <diffuse>0.9 0.1 0.1 1</diffuse>
+          <specular>0.5 0.1 0.1 1</specular>
+        </material>
+      </visual>
+      <collision name="body_col">
+        <geometry><box><size>0.5 0.5 0.15</size></box></geometry>
+      </collision>
+      <visual name="rotor_fl">
+        <pose>0.3 0.3 0.1 0 0 0</pose>
+        <geometry><cylinder><radius>0.25</radius><length>0.02</length></cylinder></geometry>
+        <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+      </visual>
+      <visual name="rotor_fr">
+        <pose>-0.3 0.3 0.1 0 0 0</pose>
+        <geometry><cylinder><radius>0.25</radius><length>0.02</length></cylinder></geometry>
+        <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+      </visual>
+      <visual name="rotor_rl">
+        <pose>0.3 -0.3 0.1 0 0 0</pose>
+        <geometry><cylinder><radius>0.25</radius><length>0.02</length></cylinder></geometry>
+        <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+      </visual>
+      <visual name="rotor_rr">
+        <pose>-0.3 -0.3 0.1 0 0 0</pose>
+        <geometry><cylinder><radius>0.25</radius><length>0.02</length></cylinder></geometry>
+        <material><ambient>0.2 0.2 0.2 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+      </visual>
+    </link>
+  </model>
+</sdf>

@@ -13,6 +13,9 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'config'), ['config/uav.yaml']),
+        (os.path.join('share', package_name, 'scripts'),
+            ['scripts/novnc_bridge.py', 'scripts/intruder_sim.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -27,8 +30,14 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'flight_node = wingbreaker_uav.flight_node:main', 'detector = wingbreaker_uav.detector:main', 'brain = wingbreaker_uav.brain:main',
-            'engagement_node = wingbreaker_uav.engagement_node:main', 'safety_node = wingbreaker_uav.safety_node:main',
+            'flight_node = wingbreaker_uav.flight_node:main',
+            'detector = wingbreaker_uav.detector:main',
+            'brain = wingbreaker_uav.brain:main',
+            'engagement_node = wingbreaker_uav.engagement_node:main',
+            'safety_node = wingbreaker_uav.safety_node:main',
+            'intercept_llm = wingbreaker_uav.intercept_llm:main',
+            'web_dashboard = wingbreaker_uav.web_dashboard:main',
+            'wait_for_topic = wingbreaker_uav.wait_for_topic:main',
         ],
     },
 )

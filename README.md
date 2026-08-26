@@ -1,208 +1,101 @@
-# Border Patrol Drone System
+# UAV Project - Drone Detector & Interceptor
 
-An autonomous drone-based border surveillance system that combines AI object detection with autonomous flight to detect and track people and vehicles crossing borders.
+Autonomous fixed-wing UAV that patrols an area, detects intruder drones with a
+YOLO camera model, chases and locks onto them, and executes interception after
+an approval step (human or LLM). Built on ROS 2 Humble + PX4 SITL + Gazebo.
 
----
-
-## Project Images
-
-### Thermal Detection System
-![Thermal Detection](assets/thermal_detection.jpg)
+Copy of `wing_braker_uav`, reworked following the engineering patterns of
+`pothole_remasterd` (launch orchestration, config, dashboard).
 
 ---
 
-## Project Overview
-
-This project simulates a real border patrol system using:
-- Autonomous drone patrol along a defined border route
-- AI detection to identify people and vehicles
-- Real time alerts sent to border guards
-- Orbit maneuver when suspicious activity is detected
-
----
-
-## System Architecture
+## Architecture
 
 ```
-Drone takes off from home position
-         ↓
-Flies patrol route along the border
-W1 → W2 → W3 → W4 → W5 → W6 → W7
-         ↓
-At W4 — suspicious activity detected
-Mission paused — drone performs 50m radius orbit
-         ↓
-AI detection runs on camera feed
-         ↓
-Alert sent to border guards
-         ↓
-Mission resumes — drone returns to base
+camera (zam_uav_v2 gimbal) --gzbridge--> /camera/image_raw
+        |
+        v
+detector  (YOLO, model_path from config; simulated mode until trained .pt lands)
+        |  IntruderDetection (lat/lon/alt/confidence)
+        v
+brain     PATROL -> LOCK/CHASE (fly + orbit) -> DECISION -> ENGAGE -> REPORT -> PATROL
+        |             |
+        |             |-- approval_mode: human -> /request_interception (dashboard/CLI)
+        |             |-- approval_mode: llm   -> intercept_llm.py (separate node, mock default)
+        v             v
+engagement_node (simulated missile launcher) -> InterceptReport -> web_dashboard :8080
 ```
 
----
+## Packages
 
-## Project Structure
-
-```
-border-patrol-drone/
-├── README.md
-├── requirements.txt
-├── drone/
-│   └── patrol_mission.py
-├── ai/
-│   └── border_detection.py
-└── assets/
-    ├── thermal_detection.jpg
-    └── demo.mp4
-```
-
----
-
-## Technologies Used
-
-| Technology | Purpose |
+| Package | Contents |
 |---|---|
-| Python 3.10 | main programming language |
-| MAVSDK | drone communication and control |
-| PX4 SITL | drone simulation with Gazebo |
-| asyncio | async drone control |
-| YOLOv8m | AI object detection model |
-| OpenCV | image processing and visualization |
-| PyTorch | deep learning framework |
-| CUDA 12.4 | GPU acceleration |
+| `wingbreaker_interfaces` | `FlyToGPS.action`, `IntruderDetection`, `VehicleStatus`, `MissionState`, `InterceptReport` msgs, `RequestInterception.srv` |
+| `wingbreaker_uav` | brain, flight_node, safety_node, engagement_node, detector, intercept_llm, web_dashboard, wait_for_topic + scripts (`novnc_bridge.py`, `intruder_sim.py`) |
 
----
+## Quick start
 
-## Hardware Specifications
-
-| Component | Details |
-|---|---|
-| CPU | AMD Ryzen 7 7435HS |
-| GPU | NVIDIA GeForce RTX 4050 Laptop GPU |
-| RAM | 16GB |
-| OS | Ubuntu 22.04 |
-| CUDA | 12.4 |
-
----
-
-## Installation
-
-### Clone the repository
 ```bash
-git clone https://github.com/Ziyadalshrani507/border-patrol-drone.git
-cd border-patrol-drone
+cd ~/UAV_Project
+source /opt/ros/humble/setup.bash
+colcon build
+source install/setup.bash
+
+# full stack: PX4 + Gazebo + camera bridge + all nodes + intruder drone
+ros2 launch wingbreaker_uav wingbreaker.launch.py
+
+# options
+ros2 launch wingbreaker_uav wingbreaker.launch.py intruder_mode:=static   # parked target
+ros2 launch wingbreaker_uav wingbreaker.launch.py approval_mode:=llm run_llm:=true
+
+# optional: QGC in browser via noVNC (needs xvfb + x11vnc installed)
+ros2 launch wingbreaker_uav qgc_novnc.launch.py
+# then open http://localhost:6080/vnc.html or use the QGC tab on the dashboard
 ```
 
-### Install dependencies
+Dashboard: **http://localhost:8080** - mission state, telemetry, camera feed,
+detections, intercept reports, Approve button (human mode), QGC tab (when
+novnc_bridge is running).
+
+## Detection model
+
+`detector` reads `model_path` from `config/uav.yaml`. It ships with the stock
+`yolov8n.pt` placeholder and `use_simulated: true` so the full pipeline runs
+before your trained weights exist. To go live:
+
+1. Copy your trained drone-detection `.pt` into this folder.
+2. In `config/uav.yaml` set `detector.model_path` to its filename,
+   `target_classes: ["drone"]` (adjust to your class name),
+   `use_simulated: false`.
+
+## Interception flow
+
+1. Detector publishes an intruder above `detection_conf_threshold`.
+2. Brain abandons patrol, flies to the target (LOCK), orbits it.
+3. Approval:
+   - `human`: click **Approve** on the dashboard or call the service from CLI
+   - `llm`: the separate `intercept_llm` node decides (mock policy by default;
+     wire a real provider in `_ask_llm`)
+   - `auto`: engage immediately
+4. Engagement fires (simulated), brain publishes `InterceptReport`
+   (detected / intercepted flags, location, lat, lon, alt) shown on the
+   dashboard.
+
+## Sim assets (`sim/`)
+
+- `models/zam_uav_v2` - Reaper-style fixed-wing (IMU, baro, mag, GPS,
+  airspeed plugin, gimbal camera; lidar removed)
+- `models/intruder_drone` - static-flagged quad target moved kinematically
+- `airframes/4031_gz_zam_uav_v2` - PX4 airframe (installed into PX4 ROMFS)
+
+## System dependencies (optional, QGC-in-browser only)
+
 ```bash
-pip install -r requirements.txt
+sudo apt install xvfb x11vnc          # not needed for the core sim
+pip install --user websockify         # already done if ~/.local/bin/websockify exists
+# noVNC app is vendored at thirdparty/noVNC
 ```
-
-### Install PyTorch with CUDA
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-```
-
----
-
-## How to Run
-
-### Step 1 — Set home location
-```bash
-export PX4_HOME_LAT=18.708306
-export PX4_HOME_LON=49.963417
-export PX4_HOME_ALT=650
-```
-
-### Step 2 — Start PX4 SITL simulator
-```bash
-make px4_sitl gazebo
-```
-
-### Step 3 — Run drone patrol mission
-```bash
-python3 drone/patrol_mission.py
-```
-
-### Step 4 — Run AI detection system
-```bash
-python3 ai/border_detection.py
-```
-
----
-
-## Patrol Route
-
-| Waypoint | Latitude | Longitude | Notes |
-|---|---|---|---|
-| Home | 18.708306 | 49.963417 | takeoff point |
-| W1 | 18.708306 | 49.963900 | patrol start |
-| W2 | 18.708280 | 49.964400 | patrol east |
-| W3 | 18.708270 | 49.964900 | patrol east |
-| W4 | 18.708260 | 49.965400 | orbit + AI detection |
-| W5 | 18.708250 | 49.965900 | patrol continue |
-| W6 | 18.708250 | 49.966400 | patrol east |
-| W7 | 18.708250 | 49.966667 | patrol end |
-
----
-
-## AI Detection Classes
-
-| ID | Object | Box Color |
-|---|---|---|
-| 0 | Person | Green |
-| 2 | Car | Orange |
-| 5 | Bus | Purple |
-| 7 | Truck | Yellow |
-| any | Crossed border | Red |
-
----
-
-## Border Guard Alert Example
-
-```
-==================================================
-BORDER GUARD ALERT
-==================================================
-Time       : 2026-05-30 12:00:01
-Location   : W4 — border crossing hotspot
-Lat        : 18.708260
-Lon        : 49.965400
-People     : 5 detected crossing the border
-Vehicles   : 1 car detected crossing the border
-Status     : IMMEDIATE ACTION REQUIRED
-==================================================
-```
-
----
-
-## Challenges Faced
-
-| Challenge | Fix |
-|---|---|
-| UDP connection deprecated | changed to udpin://0.0.0.0:14540 |
-| Drone arming denied | added health check before arming |
-| GPU not working Error 804 | updated NVIDIA driver to 570 |
-| Border line wrong position | added live slider to adjust |
-| Detection direction wrong | flipped crossing logic |
-| Low confidence on drone footage | lowered threshold to 0.05 |
-| Display broke after driver update | restarted gdm3 |
-
----
-
-## Future Improvements
-
-- Train custom YOLOv8 model on aerial drone footage
-- Integrate live camera stream from real drone
-- Add GPS coordinates to each detection alert
-- Send real time SMS or email alerts to border guards
-- Deploy on actual drone hardware
-- Add night vision thermal model for better accuracy
-- Add web dashboard for live monitoring
-
----
 
 ## Author
 
-**Ziyadalshrani507**
-Engineering Student — Border Patrol Drone Surveillance System
+**xKhalid1**

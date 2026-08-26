@@ -9,11 +9,16 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(action_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/FlyToGPS.action"
   "msg/IntruderDetection.msg"
-  DEPENDENCIES action_msgs
+  "msg/VehicleStatus.msg"
+  "msg/MissionState.msg"
+  "msg/InterceptReport.msg"
+  "srv/RequestInterception.srv"
+  DEPENDENCIES action_msgs sensor_msgs
 )
 
 if(BUILD_TESTING)

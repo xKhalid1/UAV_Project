@@ -1,0 +1,59 @@
+# Wingbreaker UAV - node configuration
+# Coordinates below match the stock PX4 "default" gz world spawn area
+# (Zurich). Replace with your patrol area when switching worlds.
+
+detector:
+  ros__parameters:
+    camera_topic: "/camera/image_raw"
+    model_path: "yolov8n.pt"      # PLACEHOLDER - drop your trained drone .pt here
+    confidence_threshold: 0.35
+    target_classes: [""]          # empty = all classes; use ["drone"] for your model
+    use_simulated: true           # flip to false once your trained model is in place
+    sim_interval_s: 20.0
+    sim_base_lat: 47.39770
+    sim_base_lon: 8.54560
+    assume_range_m: 60.0          # pixel->GPS estimate range assumption (m)
+    hfov_deg: 114.6               # gimbal camera horizontal FOV
+
+brain:
+  ros__parameters:
+    # flat list: lat0, lon0, lat1, lon1, ... (ROS params forbid nested arrays)
+    waypoints:
+      - 47.39830
+      - 8.54560
+      - 47.39830
+      - 8.54660
+      - 47.39770
+      - 8.54660
+      - 47.39770
+      - 8.54560
+    patrol_alt: 65.0
+    detection_conf_threshold: 0.85
+    orbit_radius_m: 40.0
+    orbit_points: 8
+    decision_timeout_s: 30.0
+    cooldown_s: 10.0
+    approval_mode: "human"        # human | llm | auto
+
+flight_node:
+  ros__parameters:
+    system_address: "udpin://0.0.0.0:14540"
+    status_rate_hz: 2.0
+
+safety_node:
+  ros__parameters:
+    system_address: "udpin://0.0.0.0:14541"
+    low_threshold: 20.0
+
+intercept_llm:
+  ros__parameters:
+    provider: "mock"              # mock | openai | anthropic | ollama (unwired)
+    model: "gpt-4o-mini"
+    api_key_env: "OPENAI_API_KEY"
+    confidence_threshold: 0.85
+    decision_delay_s: 2.0
+
+web_dashboard:
+  ros__parameters:
+    port: 8080
+    camera_topic: "/camera/image_raw"

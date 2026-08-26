@@ -1,0 +1,9 @@
+# Request to approve interception of a locked target.
+# ---
+# Request
+bool approve                  # true = authorize engagement
+string approver               # "human" | "llm"
+---
+# Response
+bool success
+string message
