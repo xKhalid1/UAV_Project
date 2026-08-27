@@ -1,0 +1,44 @@
+# Wingbreaker UAV - Pi camera mode configuration
+# The Pi runs YOLO inference and exposes MJPEG + JSON; pi_bridge republishes
+# those as /camera/image_raw and detections so the dashboard works unchanged.
+# All non-Pi nodes reuse the same params as uav.yaml.
+
+pi_bridge:
+  ros__parameters:
+    pi_host: "192.168.1.100"
+    pi_port: 5000
+    camera_topic: "/camera/image_raw"
+    detections_topic: "detections"
+    vehicle_status_topic: "vehicle_status"
+    poll_hz: 5.0
+    target_classes: ["drone"]
+    hfov_deg: 114.6
+    assume_range_m: 60.0
+    stream_reconnect_delay_s: 2.0
+
+flight_node:
+  ros__parameters:
+    system_address: "udpin://0.0.0.0:14540"
+    status_rate_hz: 2.0
+    arrival_radius_m: 100.0
+
+safety_node:
+  ros__parameters:
+    system_address: "udpin://0.0.0.0:14541"
+    low_threshold: 20.0
+
+brain:
+  ros__parameters:
+    waypoints: [47.39830, 8.54560, 47.39830, 8.54660, 47.39770, 8.54660, 47.39770, 8.54560]
+    patrol_alt: 65.0
+    detection_conf_threshold: 0.55
+    orbit_radius_m: 80.0
+    orbit_points: 8
+    decision_timeout_s: 30.0
+    cooldown_s: 10.0
+    approval_mode: "human"
+
+web_dashboard:
+  ros__parameters:
+    port: 8080
+    camera_topic: "/camera/image_raw"

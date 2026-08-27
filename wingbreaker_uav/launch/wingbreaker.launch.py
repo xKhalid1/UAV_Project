@@ -20,7 +20,7 @@ from launch_ros.substitutions import FindPackageShare
 
 PX4_DIR = os.path.expanduser('~/PX4-Autopilot')
 UAV_DIR = os.path.expanduser('~/UAV_Project')
-WORLD = 'default'
+WORLD = 'external_world'
 # PX4 names spawned vehicles "<model>_<px4_instance>" (px4-rc.gzsim), so the
 # first vehicle is zam_uav_v2_0 - NOT plain zam_uav_v2.
 CAMERA_GZ_TOPIC = (
@@ -43,7 +43,7 @@ def generate_launch_description():
         'PX4_SYS_AUTOSTART': '4031',
         'PX4_SIM_MODEL': 'gz_zam_uav_v2',
         'PX4_GZ_WORLD': WORLD,
-        'PX4_GZ_MODEL_POSE': '0,0,0.3',
+        'PX4_GZ_MODEL_POSE': '0,0,70',
         # make sure OUR copies of the custom models win resolution order
         'GZ_SIM_RESOURCE_PATH':
             os.path.join(UAV_DIR, 'sim', 'models') + ':' +

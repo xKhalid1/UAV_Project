@@ -151,7 +151,7 @@ class Detector(Node):
         lat, lon = est
         st = self.vehicle_status
         alt = float(st.relative_altitude_m) if st is not None else 0.0
-        self._publish(lat, lon, alt, conf, cls_name)
+        self._publish(lat, lon, alt, conf, cls_name, x1, y1, x2, y2)
 
     # ---------- simulated path ----------
     def _scan_sim(self):
@@ -161,7 +161,8 @@ class Detector(Node):
         self._publish(lat, lon, 65.0, 0.95, 'sim_intruder')
 
     # ---------- shared ----------
-    def _publish(self, lat, lon, alt, conf, label):
+    def _publish(self, lat, lon, alt, conf, label, x1=0.0, y1=0.0,
+                 x2=0.0, y2=0.0):
         m = IntruderDetection()
         m.header.stamp = self.get_clock().now().to_msg()
         m.header.frame_id = 'detector'
@@ -171,10 +172,18 @@ class Detector(Node):
         m.confidence = float(conf)
         m.threat_level = 'HIGH' if conf >= 0.85 else (
             'MEDIUM' if conf >= 0.5 else 'LOW')
+        # pixel bounding box in the original 1280x720 camera frame so the
+        # dashboard can overlay it on the MJPEG feed
+        m.roi.x_offset = int(round(x1))
+        m.roi.y_offset = int(round(y1))
+        m.roi.width = int(round(max(0.0, x2 - x1)))
+        m.roi.height = int(round(max(0.0, y2 - y1)))
+        m.roi.do_rectify = False
         self.pub.publish(m)
         self.get_logger().info(
-            'INTRUDER [%s] at (%.5f, %.5f) conf=%.2f [%s]'
-            % (label, lat, lon, conf, m.threat_level))
+            'INTRUDER [%s] at (%.5f, %.5f) conf=%.2f [%s] box=(%d,%d,%d,%d)'
+            % (label, lat, lon, conf, m.threat_level,
+               m.roi.x_offset, m.roi.y_offset, m.roi.width, m.roi.height))
 
 
 def main(args=None):

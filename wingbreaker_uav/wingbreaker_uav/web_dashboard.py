@@ -283,22 +283,77 @@ header h1 span { color: var(--danger); font-weight: 700; }
 #approval-text { font-size: 0.8125rem; color: var(--text-muted); }
 .btn-approve {
   width: 100%;
-  padding: 0.875rem 1rem;
-  background: rgba(248,113,113,0.10);
-  border: 1px solid rgba(248,113,113,0.45);
-  color: var(--danger);
-  border-radius: 0.5rem;
+  padding: 1.125rem 1rem;
+  background: linear-gradient(135deg, rgba(52,211,153,0.22), rgba(16,185,129,0.30));
+  border: 2px solid rgba(52,211,153,0.75);
+  color: #6ee7b7;
+  border-radius: 0.625rem;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.25), 0 0 18px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  animation: btn-approve-pulse 1.6s ease-in-out infinite;
 }
-.btn-approve:hover:not(:disabled) { background: rgba(248,113,113,0.18); box-shadow: var(--glow-danger); }
+.btn-approve:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(52,211,153,0.34), rgba(16,185,129,0.45));
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.45), 0 0 28px rgba(52,211,153,0.65), inset 0 1px 0 rgba(255,255,255,0.10);
+  color: #a7f3d0;
+}
 .btn-approve:active:not(:disabled) { transform: translateY(1px); }
-.btn-approve:disabled { opacity: 0.45; cursor: wait; }
+.btn-approve:disabled { opacity: 0.5; cursor: wait; animation: none; box-shadow: none; }
+@keyframes btn-approve-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(52,211,153,0.25), 0 0 14px rgba(52,211,153,0.30), inset 0 1px 0 rgba(255,255,255,0.06); }
+  50%      { box-shadow: 0 0 0 2px rgba(52,211,153,0.45), 0 0 28px rgba(52,211,153,0.70), inset 0 1px 0 rgba(255,255,255,0.10); }
+}
+.approve-banner {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(90deg, rgba(52,211,153,0.18), rgba(52,211,153,0.06));
+  border: 1px solid rgba(52,211,153,0.5);
+  border-left: 3px solid var(--success);
+  border-radius: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.approve-banner::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: var(--glow-success);
+  animation: pulse 1.4s infinite;
+}
+
+.camera-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.detection-box {
+  fill: rgba(52,211,153,0.10);
+  stroke: var(--success);
+  stroke-width: 3;
+  stroke-dasharray: 0;
+  filter: drop-shadow(0 0 6px rgba(52,211,153,0.55));
+  transition: x 0.15s ease-out, y 0.15s ease-out, width 0.15s ease-out, height 0.15s ease-out, opacity 0.25s;
+  opacity: 0;
+  vector-effect: non-scaling-stroke;
+}
+.detection-box.visible { opacity: 1; }
+.detection-box.high { stroke: var(--danger); fill: rgba(248,113,113,0.10); filter: drop-shadow(0 0 6px rgba(248,113,113,0.55)); }
 #approval-status { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); min-height: 1.1rem; word-break: break-word; }
 
 .card-empty { color: var(--text-dim); font-size: 0.8125rem; text-align: center; padding: 1.5rem 0; }
@@ -315,6 +370,32 @@ header h1 span { color: var(--danger); font-weight: 700; }
 .threat-chip.low { background: rgba(52,211,153,0.10); color: var(--success); border: 1px solid rgba(52,211,153,0.28); }
 .threat-chip.medium { background: rgba(245,158,11,0.10); color: var(--warn); border: 1px solid rgba(245,158,11,0.28); }
 .threat-chip.high { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid rgba(248,113,113,0.32); }
+
+.locks-section { margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.75rem; }
+.locks-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.locks-title { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.locks-count { font-family: var(--font-mono); font-size: 0.6875rem; font-weight: 800; padding: 0.125rem 0.5rem; background: rgba(248,113,113,0.14); color: var(--danger); border: 1px solid rgba(248,113,113,0.4); border-radius: 999px; min-width: 1.5rem; text-align: center; }
+.locks-count.zero { background: var(--panel-2); color: var(--text-dim); border-color: var(--border); }
+.locks-list { display: flex; flex-direction: column; gap: 0.375rem; max-height: 11rem; overflow-y: auto; }
+.locks-list .card-empty.locks-empty { padding: 0.75rem 0; }
+.lock-entry {
+  background: var(--panel-2);
+  border: 1px solid rgba(248,113,113,0.32);
+  border-left: 3px solid var(--danger);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.75rem;
+  animation: lock-flash 1.2s ease-out;
+}
+.lock-entry .lock-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.25rem; }
+.lock-entry .lock-conf { font-family: var(--font-mono); font-weight: 800; color: var(--danger); }
+.lock-entry .lock-time { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.6875rem; }
+.lock-entry .lock-coords { font-family: var(--font-mono); color: var(--text); font-variant-numeric: tabular-nums; }
+@keyframes lock-flash {
+  0%   { background: rgba(248,113,113,0.35); transform: scale(1.02); }
+  60%  { background: rgba(248,113,113,0.18); transform: scale(1); }
+  100% { background: var(--panel-2); }
+}
 .kv { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.3125rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.8125rem; }
 .kv:last-child { border-bottom: none; }
 .kv .k { color: var(--text-muted); }
@@ -434,6 +515,9 @@ header h1 span { color: var(--danger); font-weight: 700; }
     <h2>Onboard Camera</h2>
     <div id="camera-wrap">
       <img id="camera-img" src="/camera.mjpeg" alt="Live camera" onload="document.getElementById('camera-overlay').classList.add('hidden')">
+      <svg id="camera-svg" class="camera-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <rect id="detection-box" class="detection-box" x="0" y="0" width="0" height="0" />
+      </svg>
       <div id="camera-overlay">
         <div class="pulse"></div>
         <div>Waiting for camera</div>
@@ -445,6 +529,7 @@ header h1 span { color: var(--danger); font-weight: 700; }
   <section class="panel" id="panel-approval" style="display:none;">
     <h2>Approval Required</h2>
     <div id="approval-body">
+      <div class="approve-banner">Decision Required &middot; Authorize Interception</div>
       <div id="approval-text">Intruder locked. Interception is awaiting authorization.</div>
       <button class="btn-approve" id="approve-btn">Approve Interception</button>
       <div id="approval-status"></div>
@@ -452,8 +537,15 @@ header h1 span { color: var(--danger); font-weight: 700; }
   </section>
 
   <section class="panel" id="panel-detection">
-    <h2>Latest Detection</h2>
+    <h2>Detections</h2>
     <div id="detection-card"><div class="card-empty">No detections yet</div></div>
+    <div class="locks-section">
+      <div class="locks-header">
+        <span class="locks-title">Locks (drone &ge; 0.85)</span>
+        <span class="locks-count" id="locks-count">0</span>
+      </div>
+      <div id="locks-list" class="locks-list"><div class="card-empty locks-empty">No locks yet</div></div>
+    </div>
   </section>
 
   <section class="panel" id="panel-report">
@@ -492,6 +584,8 @@ const QGC_AVAILABLE = __QGC_AVAILABLE__;
     detection: null,
     report: null,
     logs: [],
+    lock_history: [],
+    lock_latest_ts: 0.0,
   };
   let approvePending = false;
 
@@ -510,6 +604,8 @@ const QGC_AVAILABLE = __QGC_AVAILABLE__;
     if (data.mission) Object.assign(S.mission, data.mission);
     if (data.detection !== undefined) S.detection = data.detection;
     if (data.report !== undefined) S.report = data.report;
+    if (Array.isArray(data.lock_history)) S.lock_history = data.lock_history;
+    if (typeof data.lock_latest_ts === 'number') S.lock_latest_ts = data.lock_latest_ts;
     if (data.new_log) {
       const last = S.logs[S.logs.length - 1];
       const key = (l) => (l.timestamp || 0) + '|' + l.level + '|' + l.name + '|' + l.message;
@@ -524,7 +620,9 @@ const QGC_AVAILABLE = __QGC_AVAILABLE__;
     renderTelemetry();
     renderApproval();
     renderDetection();
+    renderLocks();
     renderReport();
+    renderCameraBox();
     renderConsole();
     const seenAny = S.vehicle.lat !== null || S.vehicle.connected;
     el('waiting-overlay').classList.toggle('active', !seenAny && S.mission.state === 0);
@@ -595,6 +693,53 @@ const QGC_AVAILABLE = __QGC_AVAILABLE__;
       '<div class="kv"><span class="k">Longitude</span><span class="v">' + fmt(d.longitude, 6) + '</span></div>' +
       '<div class="kv"><span class="k">Altitude</span><span class="v">' + fmt(d.altitude, 1) + ' m</span></div>' +
       '<div class="kv"><span class="k">Time</span><span class="v">' + fmtTime(d.timestamp) + '</span></div>';
+  }
+
+  function renderLocks() {
+    const list = el('locks-list');
+    const count = el('locks-count');
+    const locks = S.lock_history || [];
+    count.textContent = String(locks.length);
+    count.classList.toggle('zero', locks.length === 0);
+    if (locks.length === 0) {
+      list.innerHTML = '<div class="card-empty locks-empty">No locks yet</div>';
+      return;
+    }
+    // Render newest first
+    const rows = [];
+    for (let i = locks.length - 1; i >= 0; i--) {
+      const d = locks[i];
+      const conf = hasValue(d.confidence) ? (d.confidence * 100).toFixed(1) + '%' : '--';
+      rows.push(
+        '<div class="lock-entry">' +
+          '<div class="lock-head">' +
+            '<span class="lock-conf">drone ' + conf + '</span>' +
+            '<span class="lock-time">' + fmtTime(d.timestamp) + '</span>' +
+          '</div>' +
+          '<div class="lock-coords">' +
+            fmt(d.latitude, 6) + ', ' + fmt(d.longitude, 6) + ' &middot; alt ' + fmt(d.altitude, 1) + ' m' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    list.innerHTML = rows.join('');
+  }
+
+  function renderCameraBox() {
+    const box = el('detection-box');
+    if (!box) return;
+    const d = S.detection;
+    if (!d || !d.roi_w || !d.roi_h) {
+      box.classList.remove('visible');
+      return;
+    }
+    box.setAttribute('x', String(d.roi_x || 0));
+    box.setAttribute('y', String(d.roi_y || 0));
+    box.setAttribute('width', String(d.roi_w));
+    box.setAttribute('height', String(d.roi_h));
+    const isHigh = String(d.threat_level || '').toUpperCase() === 'HIGH';
+    box.classList.toggle('high', isHigh);
+    box.classList.add('visible');
   }
 
   function renderReport() {
@@ -878,7 +1023,13 @@ class WebDashboard(Node):
             "detection": None,
             "report": None,
             "logs": [],
+            "lock_history": [],
+            "lock_latest_ts": 0.0,
         }
+
+        # cap for the "Locks (drone >=0.85)" panel history
+        self._lock_history_max = 15
+        self._lock_conf_threshold = 0.85  # HIGH threat == conf >= 0.85
 
         self._sse_clients = []
         self._sse_clients_lock = threading.Lock()
@@ -944,6 +1095,7 @@ class WebDashboard(Node):
 
     def _on_detection(self, msg):
         ts = self._stamp_to_epoch(msg.header)
+        roi = getattr(msg, 'roi', None)
         det = {
             "latitude": float(msg.latitude),
             "longitude": float(msg.longitude),
@@ -951,8 +1103,23 @@ class WebDashboard(Node):
             "confidence": float(msg.confidence),
             "threat_level": str(msg.threat_level),
             "timestamp": ts if ts > 0.0 else time.time(),
+            # pixel bounding box in the original 1280x720 camera frame
+            "roi_x": int(getattr(roi, 'x_offset', 0)) if roi else 0,
+            "roi_y": int(getattr(roi, 'y_offset', 0)) if roi else 0,
+            "roi_w": int(getattr(roi, 'width', 0)) if roi else 0,
+            "roi_h": int(getattr(roi, 'height', 0)) if roi else 0,
         }
         self._state["detection"] = det
+        # Record a lock event when the detector classifies the detection at
+        # HIGH threat (conf >= 0.85) - i.e. drone >=0.85 in the dashboard.
+        if det["confidence"] >= self._lock_conf_threshold:
+            lock = dict(det)
+            lock["id"] = det["timestamp"]
+            self._state["lock_history"].append(lock)
+            if len(self._state["lock_history"]) > self._lock_history_max:
+                self._state["lock_history"] = (
+                    self._state["lock_history"][-self._lock_history_max:])
+            self._state["lock_latest_ts"] = det["timestamp"]
         self._push_event(self.build_event("detection"))
 
     def _on_report(self, msg):
@@ -1071,6 +1238,8 @@ class WebDashboard(Node):
             "report": self._state["report"],
             "logs": list(self._state["logs"]),
             "new_log": new_log,
+            "lock_history": list(self._state["lock_history"]),
+            "lock_latest_ts": float(self._state["lock_latest_ts"]),
             "qgc_available": self.qgc_available(),
         }
 

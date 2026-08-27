@@ -24,7 +24,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/NXP-HGD-CF.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -34,7 +34,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Base.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -44,7 +44,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Base.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -54,7 +54,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Base.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -64,7 +64,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Base.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -337,7 +337,7 @@
           <mesh>
             <scale>0.8461538461538461 0.8461538461538461 0.8461538461538461</scale>
             <uri>model://intruder_x500_base/meshes/1345_prop_ccw.stl</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
         <material>
@@ -353,7 +353,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Bell.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -411,7 +411,7 @@
           <mesh>
             <scale>0.8461538461538461 0.8461538461538461 0.8461538461538461</scale>
             <uri>model://intruder_x500_base/meshes/1345_prop_ccw.stl</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
         <material>
@@ -427,7 +427,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Bell.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -485,7 +485,7 @@
           <mesh>
             <scale>0.8461538461538461 0.8461538461538461 0.8461538461538461</scale>
             <uri>model://intruder_x500_base/meshes/1345_prop_cw.stl</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
         <material>
@@ -501,7 +501,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Bell.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>
@@ -559,7 +559,7 @@
           <mesh>
             <scale>0.8461538461538461 0.8461538461538461 0.8461538461538461</scale>
             <uri>model://intruder_x500_base/meshes/1345_prop_cw.stl</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
         <material>
@@ -575,7 +575,7 @@
           <mesh>
             <scale>1 1 1</scale>
             <uri>model://intruder_x500_base/meshes/5010Bell.dae</uri>
-            <scale>3 3 3</scale>
+            <scale>6 6 6</scale>
           </mesh>
         </geometry>
       </visual>

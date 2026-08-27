@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Spawn and optionally move an intruder drone model in a Gazebo world.
+"""Spawn N intruder drones and fly each in a fixed circular orbit.
 
 Modes:
-  flying - spawn the static-flagged `intruder_drone` model and teleport it
-           along a crossing route through the patrol area (cheap: no physics,
-           no flight controller).
-  static - spawn it once, parked in the patrol path.
+  flying - spawn the requested number of static-flagged `intruder_x500` models
+           and teleport each along its own circular orbit around the patrol
+           area (cheap: no physics, no flight controller).
+  static - spawn them once, parked at their orbit start points.
   none   - do nothing (exit immediately).
 
 Uses the `gz service` CLI, so it works against a running gz sim server.
@@ -43,7 +43,6 @@ def find_model_sdf():
         os.path.join(os.path.dirname(os.path.abspath(__file__)),
                      '..', '..', 'sim', 'models', 'intruder_x500',
                      'model.sdf'),
-        # installed layout lives under <prefix>/share/wingbreaker_uav/scripts
         os.path.expanduser(
             '~/UAV_Project/sim/models/intruder_x500/model.sdf'),
     ]
@@ -57,8 +56,6 @@ def find_model_sdf():
 
 
 def spawn(world, name, x, y, z):
-    # this gz build (gz-msgs10) has no `file` field - use sdf_filename with
-    # an absolute path so resolution never depends on GZ_SIM_RESOURCE_PATH
     model_sdf = find_model_sdf()
     if model_sdf is None:
         return False
@@ -68,9 +65,9 @@ def spawn(world, name, x, y, z):
     r = gz_service(world, f'/world/{world}/create',
                    'gz.msgs.EntityFactory', 'gz.msgs.Boolean', req)
     if r.returncode != 0:
-        print(f'spawn failed: {r.stderr.strip()}', file=sys.stderr)
+        print(f'[{name}] spawn failed: {r.stderr.strip()}', file=sys.stderr)
         return False
-    print(f'intruder spawned at ({x}, {y}, {z})')
+    print(f'[{name}] spawned at ({x:.0f}, {y:.0f}, {z:.0f})')
     return True
 
 
@@ -80,17 +77,58 @@ def set_pose(world, name, x, y, z):
                'gz.msgs.Pose', 'gz.msgs.Boolean', req, timeout=1000)
 
 
+class Orbiter:
+    """One intruder on a fixed circular orbit."""
+
+    def __init__(self, idx, cx, cy, radius, alt, speed, phase, clockwise):
+        self.name = f'intruder_{idx}'
+        self.cx = cx
+        self.cy = cy
+        self.radius = radius
+        self.alt = alt
+        self.speed = speed            # tangential m/s
+        self.omega = speed / radius   # rad/s
+        sign = -1.0 if clockwise else 1.0
+        self.theta0 = phase
+        self.sign = sign
+        self.t0 = None
+        self.last = None
+
+    def spawn_pos(self):
+        th = self.theta0
+        return (self.cx + self.radius * math.cos(th),
+                self.cy + self.radius * math.sin(th),
+                self.alt)
+
+    def pos_at(self, t):
+        th = self.theta0 + self.sign * self.omega * t
+        return (self.cx + self.radius * math.cos(th),
+                self.cy + self.radius * math.sin(th),
+                self.alt)
+
+
+import math
+
+
 def main():
-    ap = argparse.ArgumentParser(description='Intruder drone simulator')
+    ap = argparse.ArgumentParser(description='Intruder drone simulator (fixed orbit)')
     ap.add_argument('--mode', choices=['flying', 'static', 'none'],
                     default='flying')
-    ap.add_argument('--world', default='default')
-    ap.add_argument('--name', default='intruder')
+    ap.add_argument('--world', default='runway_world')
+    # orbit parameters (centre near the patrol box)
+    ap.add_argument('--cx', type=float, default=37.0,
+                    help='orbit centre east (m) - near patrol box centre')
+    ap.add_argument('--cy', type=float, default=33.0,
+                    help='orbit centre north (m)')
+    ap.add_argument('--radius', type=float, default=70.0,
+                    help='orbit radius (m)')
     ap.add_argument('--alt', type=float, default=65.0,
-                    help='cruise altitude (m)')
-    ap.add_argument('--y', type=float, default=60.0,
-                    help='crossing line offset east of origin (m)')
-    ap.add_argument('--speed', type=float, default=12.0, help='m/s')
+                    help='orbit altitude (m); match brain.patrol_alt for '
+                         'a level camera view')
+    ap.add_argument('--speed', type=float, default=12.0,
+                    help='tangential orbit speed (m/s)')
+    ap.add_argument('--num-intruders', type=int, default=3,
+                    help='how many intruders to spawn, each on its own orbit')
     args = ap.parse_args()
 
     if args.mode == 'none':
@@ -101,26 +139,41 @@ def main():
         print('gz world never appeared - aborting', file=sys.stderr)
         sys.exit(1)
 
-    # start west of the patrol box, fly east through it
-    x = -400.0
-    if not spawn(args.world, args.name, x, args.y, args.alt):
-        sys.exit(1)
+    # build orbiters: same centre/radius/alt/speed, spread evenly in phase,
+    # alternating direction so they don't bunch up.
+    orbiters = []
+    n = max(1, int(args.num_intruders))
+    for i in range(n):
+        phase = 2.0 * math.pi * i / n
+        clockwise = (i % 2 == 1)
+        orbiters.append(Orbiter(i, args.cx, args.cy, args.radius,
+                                args.alt, args.speed, phase, clockwise))
+
+    # spawn each at its phase-0 position so the very first set_pose (if any)
+    # doesn't teleport unexpectedly.
+    t_now = 0.0
+    for o in orbiters:
+        x, y, z = o.pos_at(t_now)
+        if not spawn(args.world, o.name, x, y, z):
+            sys.exit(1)
+        o.t0 = time.time()
 
     if args.mode == 'static':
-        set_pose(args.world, args.name, 0.0, args.y, args.alt)
-        print('intruder parked (static mode)')
+        # leave them parked at their phase-0 positions
+        print(f'{n} intruders parked (static mode)')
         return
 
     step_dt = 0.2
-    step_m = args.speed * step_dt
-    print('intruder flying east at %.0f m/s' % args.speed)
+    print(f'{n} intruders orbiting at r={args.radius:.0f}m '
+          f'v={args.speed:.0f}m/s around ({args.cx:.0f},{args.cy:.0f}) '
+          f'at alt {args.alt:.0f}m')
     try:
         while True:
-            x += step_m
-            set_pose(args.world, args.name, x, args.y, args.alt)
+            t_now = time.time()
+            for o in orbiters:
+                x, y, z = o.pos_at(t_now - o.t0)
+                set_pose(args.world, o.name, x, y, z)
             time.sleep(step_dt)
-            if x > 400.0:          # loop back for continuous testing
-                x = -400.0
     except KeyboardInterrupt:
         pass
 

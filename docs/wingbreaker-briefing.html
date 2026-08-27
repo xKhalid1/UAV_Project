@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wingbreaker — Technical Briefing</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-left {
+      content: "WINGBREAKER  ·  UAV Detector & Interceptor";
+      font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+      font-size: 7.5pt;
+      letter-spacing: 0.14em;
+      color: #8A8276;
+    }
+    @bottom-right {
+      content: counter(page);
+      font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+      font-size: 8.5pt;
+      color: #8A8276;
+    }
+  }
+  @page :first {
+    margin: 0;
+    @bottom-left { content: none; }
+    @bottom-right { content: none; }
+  }
+  @page cover { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #F3EEE4;
+    color: #1C1915;
+    font-family: "Liberation Serif", "DejaVu Serif", serif;
+    font-size: 10.4pt;
+    line-height: 1.48;
+  }
+
+  /* ---------- cover ---------- */
+  .cover {
+    page: cover;
+    page-break-after: always;
+    width: 210mm;
+    height: 297mm;
+    background: #12161C;
+    color: #F3EEE4;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+  }
+  .cover-bar {
+    position: absolute;
+    top: 0; left: 0;
+    width: 11mm; height: 297mm;
+    background: #C45C26;
+  }
+  .cover-inner {
+    padding: 28mm 22mm 22mm 32mm;
+    height: 297mm;
+    position: relative;
+  }
+  .cover-kicker {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 8.2pt;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    color: #C45C26;
+    margin: 0 0 18mm 0;
+  }
+  .cover h1 {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-weight: 700;
+    font-size: 46pt;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin: 0 0 8mm 0;
+    color: #F7F2E8;
+  }
+  .cover h1 span {
+    display: block;
+    font-weight: 400;
+    font-size: 18pt;
+    letter-spacing: 0.04em;
+    color: #C9C2B4;
+    margin-top: 5mm;
+  }
+  .cover-rule {
+    width: 42mm;
+    height: 1.4pt;
+    background: #C45C26;
+    margin: 10mm 0 10mm 0;
+  }
+  .cover-lede {
+    font-size: 13.5pt;
+    line-height: 1.38;
+    max-width: 138mm;
+    color: #D9D2C4;
+    font-style: italic;
+  }
+  .cover-meta {
+    position: absolute;
+    left: 32mm;
+    bottom: 24mm;
+    right: 22mm;
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 8pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8B93A1;
+  }
+  .cover-meta strong { color: #F3EEE4; letter-spacing: 0.12em; }
+  .cover-grid {
+    position: absolute;
+    right: -10mm; bottom: 38mm;
+    width: 92mm; height: 92mm;
+    opacity: 0.09;
+  }
+
+  /* ---------- interior ---------- */
+  h2 {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 18pt;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 3mm 0;
+    color: #12161C;
+    page-break-after: avoid;
+  }
+  h2 .num {
+    display: inline-block;
+    color: #C45C26;
+    font-size: 11pt;
+    letter-spacing: 0.22em;
+    margin-right: 3mm;
+    vertical-align: 2pt;
+  }
+  h3 {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 11pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin: 6mm 0 2mm 0;
+    color: #12161C;
+    page-break-after: avoid;
+  }
+  p { margin: 0 0 3.2mm 0; }
+  .lede {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: #3A342C;
+  }
+  .section { page-break-inside: auto; }
+  .break { page-break-before: always; }
+  table.spec { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .toc {
+    margin: 0 0 8mm 0;
+    border-top: 1pt solid #C9C2B4;
+    border-bottom: 1pt solid #C9C2B4;
+    padding: 4mm 0;
+  }
+  .toc table { width: 100%; border-collapse: collapse; }
+  .toc td {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 8.4pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #5C564C;
+    padding: 1.2mm 0;
+    vertical-align: baseline;
+  }
+  .toc .n { color: #C45C26; width: 10mm; font-weight: 700; }
+  .toc .opt { color: #8A8276; }
+
+  .pull {
+    border-left: 2.4pt solid #C45C26;
+    padding: 1mm 0 1mm 5mm;
+    margin: 5mm 0 6mm 0;
+    font-style: italic;
+    font-size: 12pt;
+    color: #2A241C;
+    page-break-inside: avoid;
+  }
+
+  .cols { width: 100%; border-collapse: separate; border-spacing: 5mm 0; margin: 3mm 0 5mm 0; }
+  .cols td { width: 50%; vertical-align: top; padding: 0; }
+  .card {
+    background: #EAE3D6;
+    padding: 3.4mm 4mm 3mm 4mm;
+  }
+  .card h4 {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 8pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C45C26;
+    margin: 0 0 2mm 0;
+  }
+  .card p { margin: 0; font-size: 9.6pt; color: #2A241C; }
+  .card ul { margin: 0; padding-left: 4mm; font-size: 9.6pt; }
+  .card li { margin-bottom: 1mm; }
+
+  ul.tight { margin: 1mm 0 3mm 5mm; padding: 0; }
+  ul.tight li { margin-bottom: 1.2mm; }
+
+  table.spec {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2mm 0 4mm 0;
+    font-size: 9.2pt;
+  }
+  table.spec tr { page-break-inside: avoid; }
+  table.spec th, table.spec td {
+    text-align: left;
+    padding: 2.1mm 2.4mm;
+    border-bottom: 0.6pt solid #D4CCBE;
+    vertical-align: top;
+  }
+  table.spec th {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 7.4pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8A8276;
+    font-weight: 700;
+    border-bottom: 1.1pt solid #1C1915;
+  }
+  table.spec td.k {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-weight: 700;
+    width: 34%;
+    color: #12161C;
+    font-size: 8.8pt;
+  }
+  table.spec code, code {
+    font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
+    font-size: 8pt;
+    background: #E8E0D2;
+    padding: 0.2mm 1.2mm;
+  }
+
+  .flow {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 1.6mm 0;
+    margin: 3mm 0 5mm 0;
+    page-break-inside: avoid;
+  }
+  .flow td {
+    background: #12161C;
+    color: #F3EEE4;
+    text-align: center;
+    padding: 3.2mm 1mm 2.8mm 1mm;
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 7.4pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    width: 12.5%;
+  }
+  .flow td small {
+    display: block;
+    font-size: 6.4pt;
+    letter-spacing: 0.04em;
+    color: #9AA3B0;
+    text-transform: none;
+    margin-top: 1mm;
+  }
+  .flow td.lock { background: #8A3414; }
+  .flow td.dec { background: #C45C26; color: #fff; }
+  .flow td.eng { background: #1F4D3A; }
+
+  .layers { width: 100%; border-collapse: collapse; margin: 2mm 0 5mm 0; page-break-inside: avoid; }
+  .layers td {
+    padding: 3.2mm 4mm;
+    border: 0;
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+  }
+  .layers .name {
+    width: 28mm;
+    font-size: 8pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #F3EEE4;
+    background: #12161C;
+  }
+  .layers .body {
+    font-size: 9pt;
+    color: #1C1915;
+    background: #EAE3D6;
+    border-bottom: 1.6pt solid #F3EEE4;
+  }
+  .layers tr:last-child .body { border-bottom: 0; }
+
+  .note {
+    background: #12161C;
+    color: #E8E0D2;
+    padding: 4.5mm 5mm;
+    margin: 3mm 0 4mm 0;
+  }
+  .note h4 {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 7.6pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #C45C26;
+    margin: 0 0 2mm 0;
+  }
+  .note p { margin: 0; font-size: 9.4pt; color: #D9D2C4; }
+  .note code { background: #2A313C; color: #F3EEE4; }
+
+  .footish {
+    margin-top: 5mm;
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+    font-size: 8pt;
+    color: #8A8276;
+    letter-spacing: 0.06em;
+  }
+
+  svg.arch { width: 100%; height: 54mm; margin: 1mm 0 3mm 0; }
+  svg.graph { width: 100%; height: 72mm; margin: 1mm 0 4mm 0; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<section class="cover">
+  <div class="cover-bar"></div>
+  <svg class="cover-grid" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="#F3EEE4" stroke-width="0.6">
+      <circle cx="100" cy="100" r="30"/>
+      <circle cx="100" cy="100" r="55"/>
+      <circle cx="100" cy="100" r="80"/>
+      <path d="M100 10 V190 M10 100 H190"/>
+      <path d="M100 100 L168 42"/>
+      <polygon points="168,42 150,46 158,58" fill="#F3EEE4" stroke="none"/>
+    </g>
+  </svg>
+  <div class="cover-inner">
+    <p class="cover-kicker">Technical briefing &nbsp;·&nbsp; August 2026</p>
+    <h1>WINGBREAKER<span>UAV detector &amp; interceptor</span></h1>
+    <div class="cover-rule"></div>
+    <p class="cover-lede">
+      A fixed-wing interceptor that patrols a box, sees an intruder
+      drone on a gimbal camera, chases and orbits it, then fires only
+      after a human — or an optional LLM — says yes.
+    </p>
+    <div class="cover-meta">
+      <strong>xKhalid1</strong> &nbsp;·&nbsp; ROS 2 Humble &nbsp;·&nbsp; PX4 SITL &nbsp;·&nbsp; Gazebo<br>
+      github.com/xKhalid1/UAV_Project
+    </div>
+  </div>
+</section>
+
+<!-- ===================== INTRO / TOC ===================== -->
+<div class="toc">
+  <table>
+    <tr><td class="n">01</td><td>The problem — why a detector that cannot chase is not a system</td></tr>
+    <tr><td class="n">02</td><td>Architecture — layers, nodes, and the contracts between them</td></tr>
+    <tr><td class="n">03</td><td>The solution — patrol, lock, decide, engage, report</td></tr>
+    <tr><td class="n opt">04</td><td class="opt">Optional · The operator loop</td></tr>
+    <tr><td class="n opt">05</td><td class="opt">Optional · Safety as a second voice</td></tr>
+    <tr><td class="n opt">06</td><td class="opt">Optional · The world it flies in</td></tr>
+    <tr><td class="n opt">07</td><td class="opt">Optional · Honest limits and what comes next</td></tr>
+  </table>
+</div>
+
+<p class="lede">
+  Wingbreaker is a complete simulated interceptor loop: perception,
+  mission supervision, flight control, a safety veto, an approval gate,
+  and an operator dashboard — launched with one command. Two ROS 2
+  packages: <code>wingbreaker_interfaces</code> (messages, FlyToGPS,
+  interception service) and <code>wingbreaker_uav</code> (every node,
+  launch, dashboard). Sim assets live in <code>sim/</code>. Weights:
+  <code>yolo26n_DroneDetection.pt</code> at the repo root.
+</p>
+
+<!-- ===================== 01 PROBLEM ===================== -->
+<h2><span class="num">01</span>The problem</h2>
+<p class="lede">
+  Small drones are cheap, quiet, and already inside the fence before
+  anyone looks up. Watching a camera feed is not a defence. A waypoint
+  loop is not a defence. A detector that publishes boxes and then
+  shrugs is not a defence.
+</p>
+
+<div class="pull">
+  The hard part is not “run YOLO.” The hard part is closing the loop
+  from pixel to chase to a deliberate, auditable decision — without
+  coupling the mission brain to PX4, Gazebo, or a particular LLM.
+</div>
+
+<table class="cols">
+  <tr>
+    <td>
+      <div class="card">
+        <h4>What breaks in the wild</h4>
+        <ul>
+          <li>Perception stacks that never command the vehicle.</li>
+          <li>Autopilots that fly a box with no idea what they are looking at.</li>
+          <li>Ground stations that require a human to notice, decide, and click in time.</li>
+          <li>Single-link telemetry: when MAVSDK stalls, safety stalls with it.</li>
+        </ul>
+      </div>
+    </td>
+    <td>
+      <div class="card">
+        <h4>What this project insists on</h4>
+        <ul>
+          <li>One launch file brings up sim, flight, vision, and UI.</li>
+          <li>The brain never talks MAVLink. It talks actions and services.</li>
+          <li>Engagement is gated. Default mode is a human on the dashboard.</li>
+          <li>Battery and airborne state can veto a chase independently.</li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<h3>The operational question</h3>
+<p>
+  An interceptor sitting over a box has four jobs, in order: stay on
+  station, notice a non-cooperative aircraft, get close enough to act,
+  and only then spend the shot. Each job has a different failure mode.
+  Miss the detection and you patrol forever. Detect without a lock and
+  you write a log. Lock without an approval gate and you have built a
+  weapon, not a system. Approve without a report and you cannot tell
+  anyone what happened.
+</p>
+<p>
+  Wingbreaker is the simulation of that full sentence — not a hardware
+  program, not a real interceptor. It is the software spine you would
+  want first: typed interfaces, a supervised flight gateway, a state
+  machine you can read in one sitting, and an operator surface that
+  makes the decision visible.
+</p>
+
+<!-- ===================== 02 ARCHITECTURE ===================== -->
+<h2><span class="num">02</span>Architecture</h2>
+<p class="lede">
+  Four layers. The mission brain sits in the middle and refuses to know
+  how Gazebo, PX4, or the browser work.
+</p>
+
+<table class="layers">
+  <tr>
+    <td class="name">Operator</td>
+    <td class="body">Web dashboard on :8080 — mission state, MJPEG camera, detections, Approve, intercept reports. Optional QGroundControl tab via noVNC.</td>
+  </tr>
+  <tr>
+    <td class="name">Mission</td>
+    <td class="body">brain · detector · intercept_llm · engagement_node. State machine, YOLO, approval policy, simulated fire.</td>
+  </tr>
+  <tr>
+    <td class="name">Vehicle</td>
+    <td class="body">flight_node and safety_node, each with its own DroneGateway / MAVSDK / gRPC port. FlyToGPS action. Dual UDP into PX4 (14540 / 14541).</td>
+  </tr>
+  <tr>
+    <td class="name">World</td>
+    <td class="body">PX4 SITL airframe 4031 · Gazebo zam_uav_v2 · gimbal camera · ros_gz_bridge · kinematic intruder_x500 · runway_world.</td>
+  </tr>
+</table>
+
+<svg class="arch" viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="14" width="118" height="50" rx="2" fill="#12161C"/>
+  <text x="67" y="35" text-anchor="middle" fill="#F3EEE4" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">GIMBAL CAM</text>
+  <text x="67" y="51" text-anchor="middle" fill="#9AA3B0" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">zam_uav_v2</text>
+
+  <rect x="156" y="14" width="118" height="50" rx="2" fill="#12161C"/>
+  <text x="215" y="35" text-anchor="middle" fill="#F3EEE4" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">DETECTOR</text>
+  <text x="215" y="51" text-anchor="middle" fill="#9AA3B0" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">YOLO26n · GPS est.</text>
+
+  <rect x="304" y="6" width="150" height="66" rx="2" fill="#C45C26"/>
+  <text x="379" y="34" text-anchor="middle" fill="#fff" font-size="13" font-family="Liberation Sans, DejaVu Sans, sans-serif">BRAIN</text>
+  <text x="379" y="52" text-anchor="middle" fill="#F6D7C4" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">mission supervisor</text>
+
+  <rect x="484" y="14" width="118" height="50" rx="2" fill="#12161C"/>
+  <text x="543" y="35" text-anchor="middle" fill="#F3EEE4" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">FLIGHT</text>
+  <text x="543" y="51" text-anchor="middle" fill="#9AA3B0" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">FlyToGPS · MAVSDK</text>
+
+  <rect x="632" y="14" width="118" height="50" rx="2" fill="#12161C"/>
+  <text x="691" y="35" text-anchor="middle" fill="#F3EEE4" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">PX4 SITL</text>
+  <text x="691" y="51" text-anchor="middle" fill="#9AA3B0" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">:14540 / :14541</text>
+
+  <path d="M126 39 H156" stroke="#C45C26" stroke-width="1.6"/>
+  <path d="M274 39 H304" stroke="#C45C26" stroke-width="1.6"/>
+  <path d="M454 39 H484" stroke="#C45C26" stroke-width="1.6"/>
+  <path d="M602 39 H632" stroke="#C45C26" stroke-width="1.6"/>
+
+  <path d="M379 72 V92 H215 V118" stroke="#8A8276" stroke-width="1.2" fill="none"/>
+  <path d="M379 92 H379 V118" stroke="#8A8276" stroke-width="1.2"/>
+  <path d="M379 92 H543 V118" stroke="#8A8276" stroke-width="1.2" fill="none"/>
+  <path d="M379 92 H691 V118" stroke="#8A8276" stroke-width="1.2" fill="none"/>
+
+  <rect x="156" y="118" width="118" height="48" rx="2" fill="#EAE3D6" stroke="#12161C" stroke-width="0.8"/>
+  <text x="215" y="139" text-anchor="middle" fill="#12161C" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">SAFETY</text>
+  <text x="215" y="155" text-anchor="middle" fill="#5C564C" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">battery veto</text>
+
+  <rect x="304" y="118" width="150" height="48" rx="2" fill="#EAE3D6" stroke="#12161C" stroke-width="0.8"/>
+  <text x="379" y="139" text-anchor="middle" fill="#12161C" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">APPROVAL</text>
+  <text x="379" y="155" text-anchor="middle" fill="#5C564C" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">human · llm · auto</text>
+
+  <rect x="484" y="118" width="118" height="48" rx="2" fill="#EAE3D6" stroke="#12161C" stroke-width="0.8"/>
+  <text x="543" y="139" text-anchor="middle" fill="#12161C" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">ENGAGE</text>
+  <text x="543" y="155" text-anchor="middle" fill="#5C564C" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">/fire  (sim)</text>
+
+  <rect x="632" y="118" width="118" height="48" rx="2" fill="#EAE3D6" stroke="#12161C" stroke-width="0.8"/>
+  <text x="691" y="139" text-anchor="middle" fill="#12161C" font-size="11" font-family="Liberation Sans, DejaVu Sans, sans-serif">DASHBOARD</text>
+  <text x="691" y="155" text-anchor="middle" fill="#5C564C" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">:8080 SSE + MJPEG</text>
+
+  <text x="8" y="190" fill="#8A8276" font-size="9" font-family="Liberation Sans, DejaVu Sans, sans-serif">camera → detections → brain → fly / fire / report · safety, approval, engagement and the dashboard hang off the brain</text>
+</svg>
+
+<h3>Node graph</h3>
+<p>
+  What <code>rqt_graph</code> should show once the camera gate opens.
+  <code>engagement_node</code> looks isolated because it only exposes
+  services — that is correct, not a missing publisher.
+</p>
+
+<table class="spec">
+  <tr><th>Topic / contract</th><th>From</th><th>To</th><th>Why it exists</th></tr>
+  <tr><td class="k"><code>/camera/image_raw</code></td><td>ros_gz_bridge</td><td>detector, dashboard</td><td>Gimbal pixels. Gate waits for real frames, not a publisher.</td></tr>
+  <tr><td class="k"><code>/detections</code></td><td>detector</td><td>brain, LLM, dashboard</td><td>Intruder lat/lon/alt, confidence, threat, ROI.</td></tr>
+  <tr><td class="k"><code>/fly_to_gps</code></td><td>brain</td><td>flight_node</td><td>Cancelable GPS goal. Feedback is remaining metres.</td></tr>
+  <tr><td class="k"><code>/safe_to_fly</code></td><td>safety_node</td><td>brain</td><td>Battery veto. Chase is refused below 20%.</td></tr>
+  <tr><td class="k"><code>/request_interception</code></td><td>dashboard / LLM / CLI</td><td>brain</td><td>Approve or deny. Ignored outside DECISION.</td></tr>
+  <tr><td class="k"><code>/fire</code></td><td>brain</td><td>engagement_node</td><td>Simulated shot. Returns success + message.</td></tr>
+  <tr><td class="k"><code>/mission_state</code> · <code>/intercept_reports</code></td><td>brain</td><td>dashboard</td><td>Operator truth. Who approved, where, whether it hit.</td></tr>
+</table>
+
+<h3>Interface package</h3>
+<p>
+  The contracts are small on purpose. New behaviour should almost always
+  be a new node talking these types, not a thicker message.
+</p>
+<table class="spec">
+  <tr><th>Type</th><th>Name</th><th>Payload that matters</th></tr>
+  <tr><td class="k">msg</td><td>IntruderDetection</td><td>lat, lon, alt, confidence, threat_level, camera ROI</td></tr>
+  <tr><td class="k">msg</td><td>MissionState</td><td>IDLE → CONNECTING → PATROL → LOCK → DECISION → ENGAGE → REPORT · ERROR</td></tr>
+  <tr><td class="k">msg</td><td>VehicleStatus</td><td>connected, armed, airborne, pose, heading, battery, sats</td></tr>
+  <tr><td class="k">msg</td><td>InterceptReport</td><td>detected, intercepted, pose, confidence, approved_by, message</td></tr>
+  <tr><td class="k">action</td><td>FlyToGPS</td><td>goal lat/lon/alt · result success · feedback distance_remaining</td></tr>
+  <tr><td class="k">srv</td><td>RequestInterception</td><td>approve, approver → success, message</td></tr>
+</table>
+
+<!-- ===================== 03 SOLUTION ===================== -->
+<h2><span class="num">03</span>The solution</h2>
+<p class="lede">
+  One supervised state machine, a camera that estimates GPS from a
+  bounding box, a flight node that actually arrives, and a fire service
+  that cannot be called until someone — or a policy — approves.
+</p>
+
+<table class="flow">
+  <tr>
+    <td>Idle<small>boot</small></td>
+    <td>Conn<small>PX4 up</small></td>
+    <td>Patrol<small>box @ 65 m</small></td>
+    <td class="lock">Lock<small>fly + orbit</small></td>
+    <td class="dec">Decide<small>30 s window</small></td>
+    <td class="eng">Engage<small>/fire</small></td>
+    <td>Report<small>audit row</small></td>
+    <td>Patrol<small>resume</small></td>
+  </tr>
+</table>
+<p>
+  Denied, timed out, or a failed lock all land in REPORT and cool down
+  for 10 seconds before the next chase. The brain ignores detections
+  while not in PATROL, while airborne is false, and while
+  <code>safe_to_fly</code> is false.
+</p>
+
+<h3>See — detector</h3>
+<p>
+  Two modes, one message. Live mode loads
+  <code>yolo26n_DroneDetection.pt</code>, strides every third frame,
+  keeps the strongest <code>drone</code> box above 0.35, and publishes
+  only if confidence later clears the brain’s 0.55 chase threshold.
+  Simulated mode (the original bootstrap) drops a synthetic intruder
+  on a timer so the rest of the chain can be tested without weights.
+</p>
+<p>
+  Pixel-to-GPS is deliberately naive: the box centre is a bearing
+  offset through the gimbal’s 114.6° HFOV, then a point
+  <code>assume_range_m</code> (60 m) along that bearing from the
+  vehicle. Altitude is copied from ownship relative altitude. Refine
+  later with depth or target telemetry — do not pretend the current
+  estimate is a tracker.
+</p>
+
+<h3>Go — flight and the gateway</h3>
+<p>
+  <code>DroneGateway</code> owns one asyncio loop, one MAVSDK
+  <code>System</code>, and a dedicated gRPC port. It reconnects forever.
+  Telemetry (position, battery, armed, landed, heading, NED velocity,
+  GPS) is pumped until the first stream dies, then the whole link is
+  torn down. Callers never see frozen numbers from a dead socket.
+</p>
+<p>
+  Fixed-wing PX4 keeps <code>LandedState</code> UNDEFINED in cruise, so
+  airborne is <em>landed-state OR relative altitude &gt; 3 m</em>. Arrival
+  is 100 m, not “a few metres”: L1 guidance loiters and will not
+  converge like a quadrotor. Goals are cancelable; the brain cancels
+  the current waypoint the instant a valid detection arrives.
+</p>
+
+<h3>Ask — three approval modes</h3>
+<table class="spec">
+  <tr><th>Mode</th><th>Who decides</th><th>When to use it</th></tr>
+  <tr><td class="k">human</td><td>Dashboard Approve, or CLI on <code>/request_interception</code></td><td>Default. The honest operator-in-the-loop demo.</td></tr>
+  <tr><td class="k">llm</td><td><code>intercept_llm</code> node, same service, <code>approver="llm"</code></td><td>Policy experiments. Mock provider ships; real APIs are a hook.</td></tr>
+  <tr><td class="k">auto</td><td>Brain itself, immediately after lock</td><td>Closed-loop soak tests. Not the story you show first.</td></tr>
+</table>
+<p>
+  The LLM node is optional and never imported by the base system.
+  Mock policy: approve if detection confidence ≥ 0.85, after a 2 s
+  think delay. OpenAI / Anthropic / Ollama raise
+  <code>NotImplementedError</code> in <code>_ask_llm</code> on purpose —
+  wiring a provider is a contained change, not a rewrite.
+</p>
+
+<h3>One command</h3>
+<div class="note">
+  <h4>Bring the whole stack up</h4>
+  <p>
+    <code>ros2 launch wingbreaker_uav wingbreaker.launch.py</code><br>
+    Options: <code>intruder_mode:=static|flying|none</code> ·
+    <code>approval_mode:=human|llm|auto</code> ·
+    <code>run_llm:=true</code><br>
+    Dashboard: <code>http://localhost:8080</code> ·
+    QGC-in-browser (optional): <code>qgc_novnc.launch.py</code>
+  </p>
+</div>
+
+<!-- ===================== 04 OPERATOR ===================== -->
+<h2><span class="num">04</span>The operator loop</h2>
+<p class="lede">
+  Optional, but this is the piece that makes the system feel real.
+  A supervisor that only logs to a terminal is a lab toy.
+</p>
+<p>
+  <code>web_dashboard</code> is a ROS 2 node with a stdlib
+  <code>ThreadingHTTPServer</code>. No extra web framework. It serves
+  one page, an SSE stream of live state, an MJPEG camera with the
+  detection ROI overlaid, and a POST that calls
+  <code>/request_interception</code> as <code>approver="human"</code>.
+</p>
+
+<table class="cols">
+  <tr>
+    <td>
+      <div class="card">
+        <h4>What the operator sees</h4>
+        <ul>
+          <li>Mission state, including “AWAITING APPROVAL”.</li>
+          <li>Ownship: pose, heading, speed, battery, sats, airborne.</li>
+          <li>Camera from the gimbal, with the YOLO box drawn on it.</li>
+          <li>Every InterceptReport — detected, intercepted, who signed.</li>
+          <li>A QGC tab if the noVNC bridge is listening on :6080.</li>
+        </ul>
+      </div>
+    </td>
+    <td>
+      <div class="card">
+        <h4>What the operator can do</h4>
+        <ul>
+          <li>Approve or walk away. Timeout is a deny.</li>
+          <li>Keep flying QGC in the same browser if xvfb + x11vnc are installed.</li>
+          <li>Leave the loop entirely: CLI service call still works.</li>
+          <li>Swap the human for the LLM node without touching the brain.</li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<p>
+  The dashboard is adapted from the pothole-inspection pattern: one
+  process, Server-Sent Events, no websocket library. Clients that fall
+  behind are dropped rather than queued into a memory leak. That is
+  the right trade for a local ops view, not a public site.
+</p>
+<p>
+  QGroundControl-in-browser is deliberately a sidecar
+  (<code>novnc_bridge.py</code> + vendored noVNC), not a ROS node.
+  Core sim does not depend on xvfb. If the operator wants a GCS tab,
+  they launch it. If they do not, nothing is missing from the mission.
+</p>
+
+<!-- ===================== 05 SAFETY ===================== -->
+<h2><span class="num">05</span>Safety as a second voice</h2>
+<p class="lede">
+  Safety is not a function on the flight node. It is a second MAVSDK
+  connection that can still speak if the primary one is wedged.
+</p>
+<p>
+  <code>flight_node</code> owns <code>udpin://0.0.0.0:14540</code> and
+  gRPC 50051. <code>safety_node</code> owns <code>:14541</code> and
+  gRPC 50052. Dedicated ports exist because MAVSDK will otherwise
+  reuse a stale <code>mavsdk_server</code> from the last crashed run
+  and look “connected” while publishing ghosts.
+</p>
+<p>
+  Battery below 20% publishes <code>safe_to_fly = false</code>. The
+  brain will not leave PATROL for a chase. Unknown battery
+  (<code>-1</code>) is treated as safe so a missing telemetry field
+  does not ground a sim that has not yet streamed percent — a
+  pragmatic choice, documented here so nobody mistakes it for a
+  flight-worthiness argument.
+</p>
+<p>
+  Two other gates sit in the brain itself. Detections during takeoff
+  are ignored until <code>connected && airborne</code>. After a report,
+  a cooldown swallows the next 10 seconds of boxes so the same
+  intruder does not immediately re-trigger LOCK. Decision has a
+  30-second clock. Silence is a deny.
+</p>
+
+<!-- ===================== 06 WORLD ===================== -->
+<h2><span class="num">06</span>The world it flies in</h2>
+<p class="lede">
+  The interceptor is a Reaper-styled fixed wing. The target is a
+  scaled X500 that does not run a flight stack. That is a feature.
+</p>
+
+<table class="spec">
+  <tr><th>Asset</th><th>Role</th></tr>
+  <tr><td class="k">zam_uav_v2</td><td>Ownship. IMU, baro, mag, GPS, airspeed plugin, elevons/flaps/rudder, gimbal camera looking along the nose. Lidar removed — this mission is visual.</td></tr>
+  <tr><td class="k">4031_gz_zam_uav_v2</td><td>PX4 airframe dropped into ROMFS. Launch sets <code>PX4_SYS_AUTOSTART=4031</code> and <code>PX4_SIM_MODEL=gz_zam_uav_v2</code>.</td></tr>
+  <tr><td class="k">intruder_x500</td><td>Static-flagged, 3× PX4 X500 visual. Spawned and teleported with <code>gz service</code>. No physics, no companion computer.</td></tr>
+  <tr><td class="k">runway_world</td><td>Default Gazebo world. Patrol waypoints sit on the stock PX4 Zurich spawn box (~47.398 N, 8.546 E).</td></tr>
+</table>
+
+<p>
+  Intruder modes: <code>flying</code> orbits several copies around the
+  patrol box, <code>static</code> parks them at the orbit start,
+  <code>none</code> leaves the sky empty. PX4 names the first vehicle
+  <code>zam_uav_v2_0</code>, not <code>zam_uav_v2</code> — the camera
+  bridge topic includes that suffix or the image never arrives.
+</p>
+<p>
+  Launch does not start the app nodes until
+  <code>wait_for_topic</code> has seen an actual
+  <code>sensor_msgs/Image</code> on <code>/camera/image_raw</code>.
+  Checking for a publisher is not enough: <code>ros_gz_bridge</code>
+  advertises immediately, even when Gazebo has nothing to forward.
+  That single gate is why “full stack up” means the camera is alive,
+  not merely that PX4 printed a banner.
+</p>
+
+<div class="note">
+  <h4>Tunables live in one file</h4>
+  <p>
+    <code>wingbreaker_uav/config/uav.yaml</code> — waypoints, patrol
+    altitude, both confidence thresholds, orbit radius (80 m), arrival
+    radius (100 m), approval mode, YOLO path, dashboard port.
+    ROS 2 forbids nested arrays, so waypoints are a flat
+    <code>lat0, lon0, lat1, lon1, …</code> list. Do not nest them.
+  </p>
+</div>
+
+<!-- ===================== 07 LIMITS ===================== -->
+<h2><span class="num">07</span>Honest limits</h2>
+<p class="lede">
+  A briefing that hides the seams is a brochure. These are the seams.
+</p>
+
+<table class="cols">
+  <tr>
+    <td>
+      <div class="card">
+        <h4>What is true today</h4>
+        <ul>
+          <li>End-to-end verified: PATROL → LOCK → human Approve → ENGAGE → REPORT <em>intercepted=True</em> → resume.</li>
+          <li>Live YOLO on the gimbal, not only the simulated detector.</li>
+          <li>Supervised dual MAVSDK gateways that reconnect.</li>
+          <li>Single-command launch with a data-based camera gate.</li>
+        </ul>
+      </div>
+    </td>
+    <td>
+      <div class="card">
+        <h4>What is not</h4>
+        <ul>
+          <li>Engagement is a service stub. There is no seeker, no warhead, no hit geometry.</li>
+          <li>Range is assumed, not measured. A box on the horizon is still “60 m ahead.”</li>
+          <li>The LLM path is a mock policy plus a hook.</li>
+          <li>QGC-in-browser still needs <code>xvfb</code> and <code>x11vnc</code> on the host.</li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<h3>What I would do next</h3>
+<ul class="tight">
+  <li><strong>A real range.</strong> Stereo, depth, or a second view so lock is a track, not a bearing plus a constant.</li>
+  <li><strong>A real provider in <code>_ask_llm</code>.</strong> Keep the mock. One live backend, same service, brain still does not know.</li>
+  <li><strong>Multi-intruder arbitration.</strong> Hold a track id; drop a stale box instead of always taking the strongest detection.</li>
+  <li><strong>Hardware in the loop.</strong> The gateway is the seam — swap SITL for a companion talking MAVSDK and the graph stays.</li>
+</ul>
+
+</body>
+</html>
