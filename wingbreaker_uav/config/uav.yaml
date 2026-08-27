@@ -29,7 +29,7 @@ brain:
       - 8.54560
     patrol_alt: 65.0
     detection_conf_threshold: 0.55   # yolo26n scores intruder 0.5-0.8 at 60m
-    orbit_radius_m: 80.0        # keep >= flight_node arrival radius
+    orbit_radius_m: 50.0        # tight orbit so wide-FOV camera always sees the static intruder cluster
     orbit_points: 8
     decision_timeout_s: 30.0
     cooldown_s: 10.0

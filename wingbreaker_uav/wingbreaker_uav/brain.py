@@ -48,28 +48,31 @@ class Brain(Node):
         self.cb = ReentrantCallbackGroup()
 
         # ---- parameters ----
-        # NOTE: ROS 2 params do not support nested arrays - waypoints are a
-        # flat list [lat0, lon0, lat1, lon1, ...]
-        self.declare_parameter('waypoints', [
-            47.39830, 8.54560, 47.39830, 8.54660,
-            47.39770, 8.54660, 47.39770, 8.54560])
+        # Fixed circular orbit (replaces random waypoint patrol). Centre is
+        # the runway location; radius and point count define the path.
+        # Orbit centre (lat/lon) - matches runway at gz (37, 18).
+        self.declare_parameter('orbit_center_lat', 47.398133)
+        self.declare_parameter('orbit_center_lon', 8.546657)
         self.declare_parameter('patrol_alt', 65.0)
         self.declare_parameter('detection_conf_threshold', 0.85)
         self.declare_parameter('orbit_radius_m', 40.0)
-        self.declare_parameter('orbit_points', 8)
+        self.declare_parameter('orbit_points', 12)
         self.declare_parameter('decision_timeout_s', 30.0)
         self.declare_parameter('cooldown_s', 10.0)
         self.declare_parameter('approval_mode', 'human')
 
-        wp_flat = list(self.get_parameter('waypoints').value or [])
-        self.waypoints = [
-            (float(wp_flat[i]), float(wp_flat[i + 1]))
-            for i in range(0, len(wp_flat) - 1, 2)]
+        # Generate fixed circular orbit waypoints around the centre.
+        # Replaces the random waypoint patrol with a deterministic loop.
+        self.orbit_center_lat = float(self.get_parameter('orbit_center_lat').value)
+        self.orbit_center_lon = float(self.get_parameter('orbit_center_lon').value)
+        self.orbit_radius = float(self.get_parameter('orbit_radius_m').value)
+        self.orbit_points = int(self.get_parameter('orbit_points').value)
+        self.waypoints = self._generate_orbit_waypoints(
+            self.orbit_center_lat, self.orbit_center_lon,
+            self.orbit_radius, self.orbit_points)
         self.patrol_alt = float(self.get_parameter('patrol_alt').value)
         self.conf_threshold = float(
             self.get_parameter('detection_conf_threshold').value)
-        self.orbit_radius = float(self.get_parameter('orbit_radius_m').value)
-        self.orbit_points = int(self.get_parameter('orbit_points').value)
         self.decision_timeout = float(
             self.get_parameter('decision_timeout_s').value)
         self.cooldown_s = float(self.get_parameter('cooldown_s').value)
@@ -206,6 +209,23 @@ class Brain(Node):
                 self._set_state(MissionState.PATROL, 'resuming patrol')
 
     # ---------- PATROL ----------
+    def _generate_orbit_waypoints(self, lat0, lon0, radius_m, n_points):
+        """Generate a closed polygon of lat/lon waypoints around a centre.
+
+        Uses a local-tangent approximation (1 deg lat ~ 111111 m,
+        1 deg lon ~ 111111 * cos(lat) m) which is fine for radii < ~1 km.
+        """
+        dlat_per_m = 1.0 / 111111.0
+        dlon_per_m = 1.0 / (111111.0 * math.cos(math.radians(lat0)))
+        pts = []
+        for i in range(n_points):
+            theta = 2.0 * math.pi * i / n_points
+            dx = radius_m * math.cos(theta)
+            dy = radius_m * math.sin(theta)
+            pts.append((lat0 + dy * dlat_per_m,
+                        lon0 + dx * dlon_per_m))
+        return pts
+
     def _tick_patrol(self):
         if self.busy or not self.fly_client.wait_for_server(timeout_sec=0.1):
             return

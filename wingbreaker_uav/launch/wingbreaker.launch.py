@@ -20,7 +20,7 @@ from launch_ros.substitutions import FindPackageShare
 
 PX4_DIR = os.path.expanduser('~/PX4-Autopilot')
 UAV_DIR = os.path.expanduser('~/UAV_Project')
-WORLD = 'external_world'
+WORLD = 'runway_world'
 # PX4 names spawned vehicles "<model>_<px4_instance>" (px4-rc.gzsim), so the
 # first vehicle is zam_uav_v2_0 - NOT plain zam_uav_v2.
 CAMERA_GZ_TOPIC = (
@@ -43,7 +43,8 @@ def generate_launch_description():
         'PX4_SYS_AUTOSTART': '4031',
         'PX4_SIM_MODEL': 'gz_zam_uav_v2',
         'PX4_GZ_WORLD': WORLD,
-        'PX4_GZ_MODEL_POSE': '0,0,70',
+        # Spawn on top of the runway (model centre at z=17; +0.5 for clearance)
+        'PX4_GZ_MODEL_POSE': '37,18,17.5',
         # make sure OUR copies of the custom models win resolution order
         'GZ_SIM_RESOURCE_PATH':
             os.path.join(UAV_DIR, 'sim', 'models') + ':' +
@@ -56,7 +57,11 @@ def generate_launch_description():
 
     intruder = ExecuteProcess(
         cmd=['python3', intruder_script,
-             '--mode', intruder_mode, '--world', WORLD],
+             '--mode', intruder_mode, '--world', WORLD,
+             # Intruders park in a tight cluster at the runway so the orbiting
+             # UAV's wide-FOV gimbal camera always sees them.
+             '--cx', '37', '--cy', '18', '--radius', '15',
+             '--alt', '65', '--num-intruders', '3'],
         output='screen')
 
     camera_bridge = Node(
@@ -93,7 +98,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            'intruder_mode', default_value='flying',
+            'intruder_mode', default_value='static',
             description='flying | static | none'),
         DeclareLaunchArgument(
             'approval_mode', default_value='human',
